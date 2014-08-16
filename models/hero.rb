@@ -7,8 +7,8 @@ class Hero
     self.pos = hero['pos']
     self.life = hero['life']
     self.gold = hero['gold']
-    self.x = hero['x']
-    self.y = hero['y']
+    self.x = self.pos['x']
+    self.y = self.pos['y']
   end
 
 end
