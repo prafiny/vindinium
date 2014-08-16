@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'bundler'
 require 'json'
+require './bots/base_bot.rb'
 
 Bundler.setup
 Bundler.require
