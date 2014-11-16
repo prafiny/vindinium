@@ -11,11 +11,9 @@ class PolyBot < BaseBot
     print @me.inspect
     @a_star.board = @game.board
     if @decision_needed
-      near = nearest(@game.taverns_locs)
-      @path = near.shift
-      @path << near.pop
-      @path.shift
-      @path << 
+      near = nearest(@game.mines_locs.map{|k,v| k})
+      @path = @game.board.passable_neighbours(near).map { |e| @a_star.search_path [@me.x, @me.y], e }.min_by { |path, score| score }.first
+      @path << near
       @decision_needed = false
     end
     follow_path
@@ -24,7 +22,7 @@ class PolyBot < BaseBot
 
   private
   def nearest(arr)
-    path = arr.map { |el| @a_star.search_path([@me.x, @me.y], el) << el }.min_by { |path, score, pos| score }
+    nearest_el = arr.min_by { |el| el.manhattan([@me.x, @me.y]) }
   end
 
   def follow_path

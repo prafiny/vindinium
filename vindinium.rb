@@ -36,6 +36,7 @@ class Vindinium
       # move somewhere
       url = self.state['playUrl']
       direction = bot.move self.state
+      puts
       self.state = self.move(url, direction)
 
     end
