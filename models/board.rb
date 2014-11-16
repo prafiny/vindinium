@@ -56,6 +56,20 @@ class Board
     (pos != WALL) and (pos != TAVERN) and (!pos.is_a?(MineTile))
   end
 
+  def passable_neighbours loc
+    self.neighbours(loc).find_all { |pos| self.passable?(pos) }
+  end
+
+  def neighbours loc
+    x, y = loc
+    enum = Enumerator.new do |e|
+      e << [x+1, y] if x < self.size-1
+      e << [x-1, y] if x > 0 
+      e << [x, y+1] if y < self.size-1 
+      e << [x, y-1] if y > 0
+    end
+  end
+
   def to loc, direction
 
     # calculate a new location given the direction
