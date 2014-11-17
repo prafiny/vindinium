@@ -68,5 +68,9 @@ describe Pathfinding::AStar, "#search_path" do
     board = Board.new 20
     astar.board = board
     expect(astar.search_path([1, 1], [0, 10])[1]).to eq(10) # 1 + 9 = 10
+    (0..10).each do |y|
+      board.set_not_passable([5, y])
+    end
+    expect(astar.search_path([0, 5], [10, 5])[1]).to eq(22)
   end
 end
