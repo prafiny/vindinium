@@ -62,7 +62,7 @@ class Board
 
   def neighbours loc
     x, y = loc
-    enum = Enumerator.new do |e|
+    Enumerator.new do |e|
       e << [x+1, y] if x < self.size-1
       e << [x-1, y] if x > 0 
       e << [x, y+1] if y < self.size-1 
