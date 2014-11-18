@@ -8,12 +8,10 @@ class PolyBot < BaseBot
   def move state
     @game = Game.new state
     @me = @game.heroes.first
-    print @me.inspect
     @a_star.board = @game.board
     if @decision_needed
       near = nearest(@game.mines_locs.map{|k,v| k})
       @path = @game.board.passable_neighbours(near).map { |e| @a_star.search_path [@me.x, @me.y], e }.min_by { |path, score| score }.first
-      @path << near
       @decision_needed = false
     end
     follow_path
