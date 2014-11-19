@@ -3,6 +3,7 @@ class PolyBot < BaseBot
   def initialize
     @a_star = Pathfinding::AStar.new
     @decision_needed = true
+    @path = []
   end
 
   def move state
@@ -10,12 +11,15 @@ class PolyBot < BaseBot
     @me = @game.heroes.first
     @a_star.board = @game.board
     if @decision_needed
-      near = nearest(@game.mines_locs.map{|k,v| k})
+      near = nearest(@game.mines_locs.keep_if{ |k, v| v != "1" }.map{ |k,v| k })
       @path = @game.board.passable_neighbours(near).map { |e| @a_star.search_path [@me.x, @me.y], e }.min_by { |path, score| score }.first
+      @path << near
       @decision_needed = false
     end
+    if @path.empty?
+      @decision_needed = true
+    end
     follow_path
-    #DIRECTIONS.sample
   end
 
   private
