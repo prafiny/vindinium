@@ -10,7 +10,7 @@ class PolyBot < BaseBot
     @me = @game.me
     @a_star.board = @game.board
     if @path.empty? || !@game.board.neighbours([@me.x, @me.y]).include?(@path.first)
-      select_goal
+      select_goal @game.mines_locs.keep_if{ |k, v| v != "1" }.map{ |k,v| k }
     end
     follow_path
   end
@@ -37,8 +37,8 @@ class PolyBot < BaseBot
     "Stay"
   end
 
-  def select_goal
-    near = nearest(@game.mines_locs.keep_if{ |k, v| v != "1" }.map{ |k,v| k })
+  def select_goal choice
+    near = nearest(choice)
     unless near.nil?
       path = @game.board.passable_neighbours(near).map { |e| @a_star.search_path [@me.x, @me.y], e }.min_by { |path, score| score }
       unless path[1] == Float::INFINITY

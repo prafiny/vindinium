@@ -9,6 +9,11 @@ class Hero
     self.gold = hero['gold']
     self.x = self.pos['x']
     self.y = self.pos['y']
+    self.id = hero['id']
+  end
+
+  def == hero
+    self.id == hero.id
   end
 
 end
