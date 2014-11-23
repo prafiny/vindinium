@@ -7,21 +7,12 @@ class PolyBot < BaseBot
 
   def move state
     @game = Game.new state
-    @me = @game.heroes.first
+    @me = @game.me
     @a_star.board = @game.board
-    m = follow_path
-    if @path.empty?
-      near = nearest(@game.mines_locs.keep_if{ |k, v| v != "1" }.map{ |k,v| k })
-      unless near.nil?
-        path = @game.board.passable_neighbours(near).map { |e| @a_star.search_path [@me.x, @me.y], e }.min_by { |path, score| score }
-        unless path[1] == Float::INFINITY
-          @path = path.first
-          @path << near
-          @decision_needed = false
-        end
-      end
-    end    
-    m
+    if @path.empty? || !@game.board.neighbours([@me.x, @me.y]).include?(@path.first)
+      select_goal
+    end
+    follow_path
   end
 
   private
@@ -45,5 +36,17 @@ class PolyBot < BaseBot
     end
     "Stay"
   end
+
+  def select_goal
+    near = nearest(@game.mines_locs.keep_if{ |k, v| v != "1" }.map{ |k,v| k })
+    unless near.nil?
+      path = @game.board.passable_neighbours(near).map { |e| @a_star.search_path [@me.x, @me.y], e }.min_by { |path, score| score }
+      unless path[1] == Float::INFINITY
+        @path = path.first
+        @path << near
+        @path.shift
+      end
+    end
+  end   
 end
 

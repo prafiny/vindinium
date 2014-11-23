@@ -1,6 +1,6 @@
 class Game
 
-  attr_accessor :state, :board, :heroes, :mines_locs, :heroes_locs, :taverns_locs
+  attr_accessor :state, :board, :heroes, :mines_locs, :heroes_locs, :taverns_locs, :me
 
   def initialize state
  
@@ -11,6 +11,7 @@ class Game
     self.heroes_locs = {}
     self.taverns_locs = []
     self.heroes = []
+    self.me = Hero.new(state['hero'])
 
     state['game']['heroes'].each do |hero|
       self.heroes << Hero.new(hero)
