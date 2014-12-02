@@ -1,13 +1,14 @@
 module Automaton
 
   class Transition
+    attr_reader :new_state
     def initialize condition, new_state
-      @evaluation = condition
+      @condition = condition
       @new_state = new_state
     end
 
-    def evaluate
-      condition.call ? @new_state : nil
+    def evaluate context
+      return context.instance_eval(&@condition)
     end
   end
 

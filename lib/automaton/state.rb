@@ -1,37 +1,38 @@
 module Automaton
 
   class State
-    def initialize &block
+    def initialize context
+      @context = context
       @transitions = []
       @behaviour = nil
       @activated = false
-      instance_eval(&block)
     end
 
-  private
-
-    def transition_to *args, &block
-      @transitions << Transition.new(lambda block, args.first)
-    end
-
-    def behaviour &block
-      @behaviour = lambda &block
+    def act
+      @context.instance_eval(&@behaviour)
+      @activated = false
     end
 
     def evaluate_transitions rule
       case rule
       when :first
-        @transitions.detect { |t| t.evaluate }
+        t = @transitions.detect{ |t| t.evaluate(@context) }
       end
+      t
     end
   
     def activated!
       @activated = true
     end
+    
+  private
 
-    def act
-      @behaviour.call
-      @activated = false
+    def transition_to state, &block
+      @transitions << Transition.new(block, state)
+    end
+
+    def behaviour &block
+      @behaviour = block
     end
   end
 

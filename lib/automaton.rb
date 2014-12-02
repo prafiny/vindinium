@@ -7,16 +7,11 @@ module Automaton
 module_function
 
   def def_automaton &block
-    self.automaton = Core.new &block
+    @automaton = Core.new self
+    @automaton.instance_eval &block
   end
 
-  def turn
-    self.automaton.act
-    self.automaton.evaluate_state
+  def method_missing(sym, *args, &block)
+    return @automaton.send(sym, *args, &block)
   end
-
-  def current_state
-    self.automaton.current_state
-  end  
-
 end

@@ -23,11 +23,12 @@ class Robot
           @n -= 1
         end
       end
-    end		
+    end
 
   end
 
   def move
     act
+    evaluate_state
   end
 end
