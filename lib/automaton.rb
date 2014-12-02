@@ -1,23 +1,17 @@
 module Automaton
 
-  def automaton *args, &block
-    @automaton = Core.new *args, &block
-  end
+  class Automaton < Hash
+    attr_reader :current_state
 
-  def turn
-    @automaton.evaluate_state
-    @automaton.act
-  end
-
-  class Core < Hash
-    def initialize &automaton
-      super
+    def initialize &block
+      super()
       @current_state = nil
-      automaton.call_instance
+      puts block.class
+      instance_eval &block
     end
 
     def state name, *args, &block
-      self[name] == State.new name, block
+      self[name] == State.new(name, &block)
       @current_state = name if args.include? :init
     end
 
@@ -35,11 +29,11 @@ module Automaton
       @transitions = []
       @behaviour = nil
       @activated = false
-      block.call_instance
+      instance_eval(&block)
     end
 
-    def transition opt
-      @transitions << Transition.new(lambda opt[:if], opt[:to])
+    def transition_to *args, &block
+      @transitions << Transition.new(lambda block, args.first)
     end
 
     def behaviour &block
@@ -73,5 +67,18 @@ module Automaton
       condition.call ? @new_state : nil
     end
   end
+
+  def automaton *args, &block
+    @automaton = Automaton.new *args, &block
+  end
+
+  def turn
+    @automaton.act
+    @automaton.evaluate_state
+  end
+
+  def current_state
+    @automaton.current_state
+  end  
 
 end
