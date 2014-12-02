@@ -1,13 +1,14 @@
 # automaton_spec.rb
 require_relative 'robot_mock'
-robot = Robot.new 0
 
 describe Automaton, "#automaton" do
   it "should handle init state properly" do
+    robot = Robot.new 0
     expect(robot.current_state).to eq(:increase)
   end
 
   it "should do transitions" do
+    robot = Robot.new 0
     99.times do
       robot.move
     end
@@ -17,6 +18,7 @@ describe Automaton, "#automaton" do
   end
 
   it "should do behave as specified" do
+    robot = Robot.new 0
     robot.move
     expect(robot.n).to eq(1)
     99.times do
