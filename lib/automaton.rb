@@ -6,10 +6,10 @@ module Automaton
     def initialize &block
       super()
       @current_state = nil
-      puts block.class
       instance_eval &block
     end
 
+  private
     def state name, *args, &block
       self[name] == State.new(name, &block)
       @current_state = name if args.include? :init
@@ -31,6 +31,8 @@ module Automaton
       @activated = false
       instance_eval(&block)
     end
+
+  private
 
     def transition_to *args, &block
       @transitions << Transition.new(lambda block, args.first)
@@ -69,16 +71,16 @@ module Automaton
   end
 
   def automaton *args, &block
-    @automaton = Automaton.new *args, &block
+    self.automaton = Automaton.new *args, &block
   end
 
   def turn
-    @automaton.act
-    @automaton.evaluate_state
+    self.automaton.act
+    self.automaton.evaluate_state
   end
 
   def current_state
-    @automaton.current_state
+    self.automaton.current_state
   end  
 
 end
