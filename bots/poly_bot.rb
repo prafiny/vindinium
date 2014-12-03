@@ -1,11 +1,35 @@
 class PolyBot < BaseBot
-
+  include Automaton, Volatile
+  prepend Threshold
   def initialize
     @a_star = Pathfinding::AStar.new
     @path = []
+
+    def_automaton do
+      state :coward do
+        
+        behaviour do
+          
+        end
+      end
+
+      state :warrior do
+
+        behaviour do
+
+        end
+      end
+
+      state :conqueror do
+
+        behaviour do
+
+        end
+      end
   end
 
   def move state
+    fade
     @game = Game.new state
     @me = @game.me
     @a_star.board = @game.board
@@ -47,6 +71,29 @@ class PolyBot < BaseBot
         @path.shift
       end
     end
-  end   
+  end
+
+  volatile :thirst, :violence, :greed, :nearest_enemy, :nearest_mine
+  
+  # Feelings
+  def thirst
+    @thirst ||= 0
+  end
+
+  def violence
+    @violence ||= 0
+  end
+
+  def greed
+    @greed ||= 0
+  end
+
+  def nearest_enemy
+    @nearest_enemy ||= nil
+  end
+
+  def nearest_mine
+    @nearest_mine ||= nil
+  end
 end
 
