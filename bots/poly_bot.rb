@@ -1,6 +1,5 @@
 class PolyBot < BaseBot
-  include Automaton, Volatile
-  prepend Threshold
+  include Automaton, Volatile, Threshold
   def initialize
     @a_star = Pathfinding::AStar.new
     @path = []

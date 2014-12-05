@@ -1,6 +1,6 @@
 module Automaton
 
-  class Core < Hash
+  class AutomatonCore < Hash
     attr_reader :current_state
 
     def initialize context

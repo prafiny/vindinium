@@ -7,7 +7,7 @@ module Automaton
 module_function
 
   def def_automaton &block
-    @automaton = Core.new self
+    @automaton = AutomatonCore.new self
     @automaton.instance_eval &block
   end
 

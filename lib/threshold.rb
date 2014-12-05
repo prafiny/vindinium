@@ -1,10 +1,17 @@
+require 'json'
+
 module Threshold
-  def initialize thresholds, args*
-    @thresholds = thresholds
-    super args*
+  class ThresholdCore < Hash
+    def initialize
+      ObjectSpace.define_finalizer(self, proc { refine; save; })
+    end
+  end
+  
+  def load_thresholds map_size
+    @thresholds = ThresholdCore.new(JSON.load(File.new("../thresholds.json")), map_size)
   end
 
-  private
+  module_function
   def threshold i
     @thresholds[i]
   end
