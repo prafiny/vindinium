@@ -21,8 +21,12 @@ module Automaton
       t
     end
   
-    def activated!
+    def activate!
       @activated = true
+    end
+
+    def activated?
+      @activated
     end
     
   private

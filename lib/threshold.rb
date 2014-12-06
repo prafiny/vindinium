@@ -47,6 +47,10 @@ module Threshold
     @thresholds[i]
   end
 
+  def t *args
+    threshold *args
+  end
+
   def finished
     @thresholds.refine
     @thresholds.save

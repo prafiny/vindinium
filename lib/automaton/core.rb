@@ -1,7 +1,6 @@
 module Automaton
 
   class AutomatonCore < Hash
-    attr_reader :current_state
 
     def initialize context
       super
@@ -11,6 +10,10 @@ module Automaton
  
     def act
       self[@current_state].act
+    end
+
+    def current_state
+      self[@current_state]
     end
 
     def evaluate_state 
