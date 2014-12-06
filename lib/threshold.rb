@@ -7,7 +7,7 @@ module Threshold
       @file = file
       @config = YAML.load(File.read(file))
       @objective = objective
-      @map_size = map_size
+      @map_size = classify map_size
       @param = mutate(@config['best_known'][@map_size]) || @config['initial_solution']
     end
 
@@ -22,7 +22,17 @@ module Threshold
         @config['best_known'][@map_size] = @param
       end
     end
-        
+
+    def classify size
+      case size
+        when 0..14 then :xs
+        when 15..18 then :s
+        when 19..22 then :m
+        when 23..26 then :l
+        when 27..30 then :xl
+      end
+    end
+
     def [] el
       @param[el]
     end
