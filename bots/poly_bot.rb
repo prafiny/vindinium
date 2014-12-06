@@ -32,9 +32,7 @@ class PolyBot < BaseBot
     @game = Game.new state
     @me = @game.me
     @a_star.board = @game.board
-    if @path.empty? || !@game.board.neighbours([@me.x, @me.y]).include?(@path.first)
-      select_goal @game.mines_locs.keep_if{ |k, v| v != "1" }.map{ |k,v| k }
-    end
+    act
     follow_path
   end
 
