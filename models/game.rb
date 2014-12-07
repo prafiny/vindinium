@@ -36,7 +36,7 @@ class Game
 
   def update state
     self.state = state
-    puts "Turn #{state['game']['turn'] / 4}"
+    #puts "Turn #{state['game']['turn'] / 4}"
     self.mines.each do |m|
       m.hero_id = get_char_at(m.pos)[1]
     end

@@ -5,10 +5,7 @@ class PolyBot < BaseBot
     load_thresholds threshold_file
     @a_star = Pathfinding::AStar.new
     @objective = lambda do
-      chart = @game.heroes.sort { |h1, h2| -h1.gold <=> -h2.gold }
-      score_max = chart.first.gold
-      return (score_max - @me.gold) / score_max unless chart.first == @me
-      chart[1].gold - score_max
+      @me.gold.to_f / (@game.heroes.map{ |h| h.gold }.reduce(:+).to_f + 1.0)
     end
     @path = []
 
@@ -40,7 +37,7 @@ class PolyBot < BaseBot
         transition_to(:coward) { violence < t(3) }
 
         behaviour do
-          select_goal nearest_enemy if current_state(:obj).activated? || path_needed
+          select_goal nearest_enemy.pos if current_state(:obj).activated? || path_needed
         end
       end
     end
@@ -116,10 +113,10 @@ class PolyBot < BaseBot
   end
 
   def greed
-    score_max = @game.heroes.map { |h| h.gold }.max.to_f
+    score_total = @game.heroes.map{ |h| h.gold }.reduce(:+).to_f
     nb_mines_me = @game.mines.select { |m| m.belongs_to? @me }.count.to_f
     nb_mines = @game.mines.count.to_f
-    @greed ||= (score_max - @me.gold) / (score_max+1) * (nb_mines - nb_mines_me) / nb_mines
+    @greed ||= (score_total - @me.gold) / (score_total+1) * (nb_mines - nb_mines_me) / nb_mines
   end
 
   def nearest_enemy

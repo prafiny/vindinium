@@ -3,10 +3,10 @@ require 'yaml'
 module Threshold
   class ThresholdCore
     MaxExploration = 0.2
-    def initialize file
+    def initialize file, *opts
       @file = file
       @config = YAML.load(File.read(file))
-      puts @config
+      @mutate = opts.include? :mutate
       if @config['best'].nil?
         @config['best'] = {'score' => {}, 'known' => {}}
       end
@@ -15,7 +15,7 @@ module Threshold
 
     def set_thresholds map_size
       @map_size = classify map_size
-      @param = mutate(@config['best']['known'][@map_size]) || @config['initial_solution']      
+      @param = (@mutate ? mutate(@config['best']['known'][@map_size]) : @config['best']['known'][@map_size]) || @config['initial_solution']
     end
 
     def save
@@ -23,7 +23,7 @@ module Threshold
     end
 
     def refine score
-      if !@config['best']['score'].include? @map_size || score <= (@config['best']['score'][@map_size] || 0.0)
+      if !@config['best']['score'].include? @map_size || score >= (@config['best']['score'][@map_size] || 0.0)
         @config['best']['score'][@map_size.to_s] = score
         @config['best']['known'][@map_size.to_s] = @param
       end
@@ -31,11 +31,11 @@ module Threshold
 
     def classify size
       case size
-        when 0..14 then :xs
-        when 15..18 then :s
-        when 19..22 then :m
-        when 23..26 then :l
-        when 27..30 then :xl
+        when 0..14 then 'xs'
+        when 15..18 then 's'
+        when 19..22 then 'm'
+        when 23..26 then 'l'
+        when 27..30 then 'xl'
       end
     end
 
@@ -46,13 +46,12 @@ module Threshold
   private
     def mutate thresholds
       return nil if thresholds.nil?
-      thresholds.map do |n|
+      return thresholds.map do |n|
         n += rand(-MaxExploration..MaxExploration)
         n = 1.0 if n > 1.0
         n = 0.0 if n < 0.0
         n
       end
-      thresholds
     end
   end
   
