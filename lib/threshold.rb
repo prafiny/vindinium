@@ -24,8 +24,8 @@ module Threshold
 
     def refine score
       if !@config['best']['score'].include? @map_size || score <= (@config['best']['score'][@map_size] || 0.0)
-        @config['best']['score'][@map_size] = score
-        @config['best']['known'][@map_size] = @param
+        @config['best']['score'][@map_size.to_s] = score
+        @config['best']['known'][@map_size.to_s] = @param
       end
     end
 
@@ -52,6 +52,7 @@ module Threshold
         n = 0.0 if n < 0.0
         n
       end
+      thresholds
     end
   end
   
