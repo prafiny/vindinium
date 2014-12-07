@@ -28,14 +28,16 @@ class Vindinium
     else
       puts "New Game started at:\n#{self.state['viewUrl']}"
     end
-
+    i = 0
     until finished? do
-      print "."
+      print "." if i % 5 == 0
+      print i.to_s if i % 10 == 0
+      i += 1
+      
 
       # move somewhere
       url = self.state['playUrl']
       direction = bot.move self.state
-      puts
       self.state = self.move(url, direction)
     end
 
