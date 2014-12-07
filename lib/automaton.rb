@@ -12,6 +12,10 @@ module_function
   end
 
   def method_missing(sym, *args, &block)
-    return @automaton.send(sym, *args, &block)
+    if @automaton.respond_to? sym
+      return @automaton.send(sym, *args, &block)
+    else
+      super
+    end
   end
 end

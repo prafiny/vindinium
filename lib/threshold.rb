@@ -3,23 +3,26 @@ require 'yaml'
 module Threshold
   class ThresholdCore
     MaxExploration = 0.2
-    def initialize map_size, file, objective
+    def initialize map_size, file
       @file = file
       @config = YAML.load(File.read(file))
-      @objective = objective
       @map_size = classify map_size
-      @param = mutate(@config['best_known'][@map_size]) || @config['initial_solution']
+      if @config['best'].nil?
+        @config['best'] = {'score' => {}, 'known' => {}}
+      end
+      
+      @param = mutate(@config['best']['known'][@map_size]) || @config['initial_solution']
+      puts @param.inspect
     end
 
     def save
       File.open(@file, 'w') { |file| file.write @param.to_yaml }
     end
 
-    def refine
-      score = objective.call
-      if score >= (@config['best_score'][@map_size] || 0.)
-        @config['best_score'][@map_size] = score
-        @config['best_known'][@map_size] = @param
+    def refine score
+      if score >= (@config['best']['score'][@map_size] || 0.0)
+        @config['best']['score'][@map_size] = score
+        @config['best']['known'][@map_size] = @param
       end
     end
 
@@ -39,6 +42,7 @@ module Threshold
 
   private
     def mutate thresholds
+      return nil if thresholds.nil?
       thresholds.map do |n|
         n += rand(-MaxExploration..MaxExploration)
         n = 1.0 if n > 1.0
@@ -48,13 +52,15 @@ module Threshold
     end
   end
   
-  module_function
+  public
   def load_thresholds *args
     @thresholds = ThresholdCore.new(*args)
   end
+  
+  module_function
 
   def threshold i
-    @thresholds[i]
+    @thresholds[i-1]
   end
 
   def t *args
@@ -62,7 +68,7 @@ module Threshold
   end
 
   def finished
-    @thresholds.refine
+    @thresholds.refine @objective.call
     @thresholds.save
   end
 end

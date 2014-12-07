@@ -12,8 +12,12 @@ module Automaton
       self[@current_state].act
     end
 
-    def current_state
-      self[@current_state]
+    def current_state *arg
+      if arg.include? :obj
+        return self[@current_state]
+      else
+        return @current_state
+      end
     end
 
     def evaluate_state 
@@ -21,7 +25,7 @@ module Automaton
       unless transition.nil?
         @current_state = transition.new_state
         s = self[@current_state]
-        s.activated!
+        s.activate!
       end
     end
 
