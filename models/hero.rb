@@ -16,4 +16,11 @@ class Hero
     self.id == hero.id
   end
 
+  def update hero
+    self.life = hero['life']
+    self.gold = hero['gold']
+    self.x = hero['pos']['x']
+    self.y = hero['pos']['y']
+    self.pos = [self.x, self.y]
+  end
 end

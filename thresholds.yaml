@@ -1,17 +1,23 @@
-initial_solution:
-    - 0.4 # 1 thirst if tavern near enough (warrior2coward)
-    - 0.8 # 2 thirst (warrior2coward)
-    - 0.2 # 3 violence (warrior2coward)
-    - 0.8 # 4 thirst (conqueror2coward)
-    - 0.5 # 5 thirst if tavern near enough (conqueror2coward)
-    - 0.3 # 6 nearness_tavern (conqueror2coward)
-    - 0.1 # 7 nearness_enemy (conqueror2warrior)
-    - 0.0 # 8 thirst to fight (coward2warrior)
-    - 0.1 # 9 nearness_tavern (warrior2coward)
-    - 0.2 # 10 nearness_enemy (coward2warrior)
-    - 0.7 # 11 violence (coward2warrior)
-    - 0.2 # 12 thirst if mine nearby (coward2conqueror)
-    - 0.2 # 13 nearness_mine (coward2conqueror)
-    - 0.1 # 14 low thirst if greedy (coward2conqueror)
-    - 0.1 # 15 greed (coward2conqueror)
-    - 0.9 # 16 violence (conqueror2warrior)
+---
+initial_solution: &1
+- 0.4
+- 0.8
+- 0.2
+- 0.8
+- 0.5
+- 0.3
+- 0.1
+- 0.0
+- 0.1
+- 0.2
+- 0.7
+- 0.2
+- 0.2
+- 0.1
+- 0.1
+- 0.9
+best:
+  score:
+    :xs: 0
+  known:
+    :xs: *1

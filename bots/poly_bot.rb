@@ -1,13 +1,14 @@
 class PolyBot < BaseBot
   include Automaton, Threshold, Volatile
   extend Volatile
-  def initialize
+  def initialize threshold_file
+    load_thresholds threshold_file
     @a_star = Pathfinding::AStar.new
     @objective = lambda do
       chart = @game.heroes.sort { |h1, h2| -h1.gold <=> -h2.gold }
       score_max = chart.first.gold
       return (score_max - @me.gold) / score_max unless chart.first == @me
-      (chart[1] - score_max) / score_max
+      chart[1].gold - score_max
     end
     @path = []
 
@@ -15,10 +16,11 @@ class PolyBot < BaseBot
       state :conqueror do
         transition_to(:coward) { thirst > t(5) && nearness_tavern < t(6) }
         transition_to(:coward) { thirst > t(4) }
+        transition_to(:coward) { nearest_mine.nil? }
 
         transition_to(:warrior) { nearness_enemy < t(7) && violence > t(16) }        
         behaviour do
-          select_goal nearest_mine if current_state(:obj).activated? || path_needed
+          select_goal nearest_mine if current_state(:obj).activated? || path_needed && !nearest_mine.nil?
         end
       end
 
@@ -28,7 +30,7 @@ class PolyBot < BaseBot
         transition_to(:conqueror) { thirst < t(14) && greed > t(15) }
 
         behaviour do
-          select_goal nearest(@game.taverns_locs) if current_state(:obj).activated? || path_needed
+          select_goal nearest(@game.taverns) if current_state(:obj).activated? || path_needed
         end
       end
 
@@ -46,27 +48,29 @@ class PolyBot < BaseBot
 
   def move state
     fade
-    @game = Game.new state
-    @distance_max = Math.sqrt(2) * @game.board.size
-    @me = @game.me
-    @a_star.board = @game.board
+    if @game.nil?
+      @game = Game.new state
+      @distance_max = Math.sqrt(2) * @game.board.size
+      @a_star.board = @game.board
+      @me = @game.me
+    else
+      @game.update state
+    end
     evaluate_state
-    puts @@volatiles.map { |e| puts e; "#{e} => #{send(e.to_s.delete('@').to_sym)}" }.inspect
-    puts current_state
     act
     follow_path
   end
 
   private
   def path_needed
-    @path.empty? || !@game.board.neighbours([@me.x, @me.y]).include?(@path.first) 
+    @path.empty? || !@game.board.neighbours(@me.pos).include?(@path.first) 
   end
 
   def nearest(arr, *args)
     if args.include?(:distance)
-      nearest_el = arr.map { |el| el.manhattan([@me.x, @me.y]) }.min
+      nearest_el = arr.map { |el| el.manhattan(@me.pos) }.min
     else
-      nearest_el = arr.min_by { |el| el.manhattan([@me.x, @me.y]) }
+      nearest_el = arr.min_by { |el| el.manhattan(@me.pos) }
     end
     nearest_el
   end
@@ -90,7 +94,7 @@ class PolyBot < BaseBot
 
   def select_goal near
     unless near.nil?
-      path = @game.board.passable_neighbours(near).map { |e| @a_star.search_path [@me.x, @me.y], e }.min_by { |path, score| score }
+      path = @game.board.passable_neighbours(near).map { |e| @a_star.search_path @me.pos, e }.min_by { |path, score| score }
       unless path[1] == Float::INFINITY
         @path = path.first
         @path << near
@@ -108,38 +112,46 @@ class PolyBot < BaseBot
   end
 
   def violence
-    @violence ||= @me.life.to_f / nearest_enemy.life * (@game.mines_locs.select { |pos, id| id == nearest_enemy().id.to_s }.count.to_f / @game.mines_locs.count)
+    @violence ||= @me.life.to_f / nearest_enemy.life * (@game.mines.select { |m| m.belongs_to? nearest_enemy }.count.to_f / @game.mines.count)
   end
 
   def greed
     score_max = @game.heroes.map { |h| h.gold }.max.to_f
-    nb_mines_me = @game.mines_locs.select { |k, v| v == @me.id.to_s }.count.to_f
-    nb_mines = @game.mines_locs.count.to_f
+    nb_mines_me = @game.mines.select { |m| m.belongs_to? @me }.count.to_f
+    nb_mines = @game.mines.count.to_f
     @greed ||= (score_max - @me.gold) / (score_max+1) * (nb_mines - nb_mines_me) / nb_mines
   end
 
   def nearest_enemy
-    @nearest_enemy ||= @game.heroes.select{ |h| h != @me }.min_by { |el| [el.x, el.y].manhattan([@me.x, @me.y]) }
+    @nearest_enemy ||= @game.heroes.select{ |h| h != @me }.min_by { |el| [el.x, el.y].manhattan(@me.pos) }
   end
 
   def nearness_enemy
-    @neaness_enemy ||= nearest_enemy.pos.manhattan([@me.x, @me.y]) / @distance_max
+    @neaness_enemy ||= nearest_enemy.pos.manhattan(@me.pos) / @distance_max
   end
 
   def nearest_mine
-    @nearest_mine ||= nearest(@game.mines_locs.select{ |k, v| v != @me.id.to_s }.map{ |k,v| k })
+    if @nearest_mine.nil?
+      n = @game.mines.select{ |m| !m.belongs_to? @me }
+      unless n.nil?
+        @nearest_mine = nearest(n.map{ |m| m.pos })
+      else
+        @nearest_mine = nil
+      end
+    end
+    @nearest_mine
   end
 
   def nearness_mine
-    @nearness_mine ||= nearest_mine.manhattan([@me.x, @me.y]) / @distance_max
+    @nearness_mine ||= (nearest_mine.nil? ? @distance_max : nearest_mine.manhattan(@me.pos)) / @distance_max
   end
 
   def nearest_tavern
-    @nearest_tavern ||= nearest @game.taverns_locs, :distance
+    @nearest_tavern ||= nearest @game.taverns
   end
 
   def nearness_tavern
-    @nearness_tavern ||= nearest_tavern / @distance_max
+    @nearness_tavern ||= nearest_tavern.manhattan(@me.pos) / @distance_max
   end  
 end
 

@@ -18,7 +18,7 @@ else
   end
 
   CONF[:server] = ARGV.shift if ARGV.length > 0
-  CONF[:bot] = PolyBot.new
+  CONF[:bot] = PolyBot.new 'thresholds.yaml'
 
   game = Vindinium.new(CONF)
   game.start

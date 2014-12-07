@@ -20,7 +20,7 @@ class Vindinium
     end
 
     self.state = create_new_game
-    bot.load_thresholds self.state['game']['board']['size'], 'thresholds.yaml'
+    bot.set_thresholds self.state['game']['board']['size']
     if self.error
       puts "OOOPS -- couldn't start a new game!"
       puts self.error
@@ -81,7 +81,10 @@ class Vindinium
   end
 
   def finished?
-    puts state
+    if state['game'].nil?
+      puts state['error']
+      return true
+    end
     state['game']['finished']
   end
 
