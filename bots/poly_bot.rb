@@ -2,7 +2,7 @@ class PolyBot < BaseBot
   include Automaton, Threshold, Volatile
   extend Volatile
   def initialize threshold_file
-    load_thresholds threshold_file
+    load_thresholds threshold_file, :mutate
     @a_star = Pathfinding::AStar.new
     @objective = lambda do
       @me.gold.to_f / (@game.heroes.map{ |h| h.gold }.reduce(:+).to_f + 1.0)

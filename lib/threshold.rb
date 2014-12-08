@@ -23,7 +23,7 @@ module Threshold
     end
 
     def refine score
-      if !@config['best']['score'].include? @map_size || score >= (@config['best']['score'][@map_size] || 0.0)
+      if !@config['best']['score'].include?(@map_size) || score >= (@config['best']['score'][@map_size] || 0.0)
         puts "New solution for #{@map_size} : #{@param.inspect}"
         @config['best']['score'][@map_size] = score
         @config['best']['known'][@map_size] = @param
