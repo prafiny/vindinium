@@ -30,8 +30,11 @@ class Vindinium
     end
     i = 0
     until finished? do
-      print "." if i % 5 == 0
-      print i.to_s if i % 10 == 0
+      if i % 20 == 0
+        print i.to_s 
+      elsif i % 5 == 0
+        print "." 
+      end
       i += 1
       
 
