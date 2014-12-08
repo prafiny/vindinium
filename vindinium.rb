@@ -45,7 +45,7 @@ class Vindinium
     end
 
     bot.finished
-
+    puts
   end
 
   def move url, direction
