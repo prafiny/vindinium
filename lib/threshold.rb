@@ -2,7 +2,7 @@ require 'yaml'
 
 module Threshold
   class ThresholdCore
-    MaxExploration = 0.05
+    MaxExploration = 0.1
     def initialize file, *opts
       @file = file
       @config = YAML.load(File.read(file))
