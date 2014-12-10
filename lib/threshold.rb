@@ -10,7 +10,10 @@ module Threshold
       if @config['best'].nil?
         @config['best'] = {'score' => {}, 'known' => {}}
       end
-      
+
+      if @config['stats'].nil?
+        @config['stats'] = {}
+      end
     end
 
     def set_thresholds map_size
@@ -27,6 +30,12 @@ module Threshold
         puts "New solution for #{@map_size} : #{@param.inspect}"
         @config['best']['score'][@map_size] = score
         @config['best']['known'][@map_size] = @param
+      end
+      if @config['stats'].include? @map_size
+        @config['stats'][@map_size]['mean'] = (@config['stats'][@map_size]['mean'] * @config['stats'][@map_size]['nb'] + score) / (@config['stats'][@map_size]['nb'] + 1)
+        @config['stats'][@map_size]['nb'] += 1
+      else
+        @config['stats'][@map_size] = {'mean' => score, 'nb' => 1}
       end
     end
 

@@ -109,7 +109,7 @@ class PolyBot < BaseBot
   end
 
   def violence
-    @violence ||= @me.life.to_f / nearest_enemy.life * (@game.mines.select { |m| m.belongs_to? nearest_enemy }.count.to_f / @game.mines.count)
+    @violence ||= @me.life.to_f / nearest_enemy.life * nearest_enemy.mine_count / @game.mines.count
   end
 
   def greed

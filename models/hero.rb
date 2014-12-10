@@ -1,6 +1,6 @@
 class Hero
 
-  attr_accessor :name, :pos, :life, :gold, :x, :y, :id
+  attr_accessor :name, :pos, :life, :gold, :x, :y, :id, :mine_count
 
   def initialize hero
     self.name = hero['name']
@@ -8,6 +8,7 @@ class Hero
     self.gold = hero['gold']
     self.x = hero['pos']['x']
     self.y = hero['pos']['y']
+    self.mine_count = hero['mineCount']
     self.pos = [self.x, self.y]
     self.id = hero['id']
   end
@@ -21,6 +22,7 @@ class Hero
     self.gold = hero['gold']
     self.x = hero['pos']['x']
     self.y = hero['pos']['y']
+    self.mine_count = hero['mineCount']
     self.pos = [self.x, self.y]
   end
 end
