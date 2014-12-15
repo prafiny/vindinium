@@ -6,6 +6,19 @@ class Array
   end
 end
 
+class Array2D
+  def initialize(width, height)
+    @data = Array.new(width) { Array.new(height) }
+  end
+  def [](x, y)
+    return nil if @data[x].nil?
+    @data[x][y]
+  end
+  def []=(x, y, value)
+    @data[x][y] = value
+  end
+end
+
 module Pathfinding
   class AStar
     attr_writer :board
@@ -50,6 +63,88 @@ module Pathfinding
         path.unshift p
       end
       path
+    end
+  end
+
+  class Floyd
+    attr_writer :board
+    def initialize
+      @board = nil
+      @next = nil
+      @length = nil
+    end
+
+    def compute
+      raise Exception, "No board defined" if @board.nil?
+      init
+      puts "init done"
+      iter_over_adjacency
+      puts "iter done"
+    end
+
+    def search_path from, to
+      u, v = get_id(from), get_id(to)
+      return nil if @next[u, v].nil?
+      path = [from]
+      until u == v
+        u = @next[u, v]
+        path.push get_pos(@next[u, v])
+      end
+      path
+    end
+
+    def search_next from, to
+      get_pos(@next[get_id(from), get_id(to)])
+    end
+
+    def search_length from, to
+      @length[get_id(from), get_id(to)]
+    end
+  private
+    def get_id pos
+      pos[0]*@board.size + pos[1]
+    end
+
+    def get_pos id
+      [id / @board.size, id % @board.size]
+    end
+
+    def iter_over_adjacency
+      size = @board.size**2
+      size.times do |k|
+        size.times do |i|
+          next if @length[i, k].nil?
+          i.upto(size-1) do |j|
+            next if @length[k, j].nil?
+            new_e = @length[i, k] + @length[k, j]
+            if new_e < @length[i, j]
+              @length[i, j] = @length[j, i] = new_e
+              @next[i, j] = @next[i, k]
+              @next[j, i] = @next[k, i]
+            end
+          end
+        end
+      end
+    end
+
+    def init
+      size = @board.size**2
+      @next = Array2D.new(size, size)
+      @length = Array2D.new(size, size)
+      size.times do |i|
+        size.times do |j|
+          if i == j
+            @next[i, j] = j
+            @length[i, j] = 0 
+          elsif @board.passable_neighbours(get_pos(i)).include?(get_pos(j))
+            @next[i, j] = j
+            @length[i, j] = 1
+          else
+            @next[i, j] = nil
+            @length[i, j] = Float::INFINITY
+          end
+        end
+      end
     end
   end
 end
