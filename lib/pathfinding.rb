@@ -52,4 +52,31 @@ module Pathfinding
       path
     end
   end
+
+  class Floyd
+    attr_writer :board
+    def initialize
+      
+    end
+
+    def compute_adjacency board
+
+    end
+
+    def iter_over_adjacency
+
+    end
+
+    def get_shortest_path from, to
+      
+    end
+
+    def get_shortest_length from, to
+
+    end
+  private
+    def get_id pos
+      
+    end
+  end
 end
