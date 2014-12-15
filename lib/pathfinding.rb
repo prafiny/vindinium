@@ -6,6 +6,20 @@ class Array
   end
 end
 
+class Array2D
+  def initialize(width, height)
+    @data = Array.new(width) { Array.new(height) }
+  end
+  def [](x, y)
+    @data[x][y]
+  end
+  def []=(x, y, value)
+    @data[x][y] = value
+  end
+end
+
+require 'matrix'
+
 module Pathfinding
   class AStar
     attr_writer :board
@@ -56,27 +70,75 @@ module Pathfinding
   class Floyd
     attr_writer :board
     def initialize
-      
+      @board = nil
+      @next = nil
+      @length = nil
     end
 
-    def compute_adjacency board
-
+    def compute
+      raise Exception, "No board defined" if @board.nil?
+      init
+      iter_over_adjacency
     end
 
-    def iter_over_adjacency
-
+    def search_path from, to
+      u, v = get_id(from), get_id(to)
+      return nil if @next[u, v].nil?
+      path = [from]
+      until u == v
+        u = @next[u, v]
+        path.push get_pos(@next[u, v])
+      end
+      path
     end
 
-    def get_shortest_path from, to
-      
-    end
-
-    def get_shortest_length from, to
-
+    def search_length from, to
+      @length[get_id(from), get_id(to)]
     end
   private
     def get_id pos
-      
+      pos[0]*@board.size + pos[1]
+    end
+
+    def get_pos id
+      [id % @board.size, id / @board.size]
+    end
+
+    def iter_over_adjacency
+      size = @board.size
+      size.times do |k|
+        size.times do |i|
+          next if @length[i, k].nil?
+          size.times do |j|
+            next if @length[k, j].nil?
+            new_e = @length[i, k] + @length[k, j]
+            if new_e < @length[i, j]
+              @length[i, j] = new_e
+              @next[i, j] = @next[i, k]
+            end
+          end
+        end
+      end
+    end
+
+    def init
+      size = @board.size
+      @next = Array2D.new(size, size)
+      @length = Array2D.new(size, size)
+      size.times do |i|
+        size.times do |j|
+          if i == j
+            @next[i, j] = j
+            @length[i, j] = 0 
+          elsif @board.passable_neighbours(get_pos(i)).include?(get_pos(j))
+            @next[i, j] = j
+            @length[i, j] = 1
+          else
+            @next[i, j] = nil
+            @length[i, j] = Float::INFINITY
+          end
+        end
+      end
     end
   end
 end
