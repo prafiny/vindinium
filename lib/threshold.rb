@@ -31,6 +31,9 @@ module Threshold
         @config['best']['score'][@map_size] = score
         @config['best']['known'][@map_size] = @param
       end
+    end
+
+    def stat score
       if @config['stats'].include? @map_size
         @config['stats'][@map_size]['mean'] = (@config['stats'][@map_size]['mean'] * @config['stats'][@map_size]['nb'] + score) / (@config['stats'][@map_size]['nb'] + 1)
         @config['stats'][@map_size]['nb'] += 1
@@ -75,7 +78,9 @@ module Threshold
   end
 
   def finished
-    @thresholds.refine @objective.call
+    score = @objective.call
+    @thresholds.refine score if @mutate
+    @thresholds.stat score
     @thresholds.save
   end
 
