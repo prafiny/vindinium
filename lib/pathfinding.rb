@@ -77,9 +77,7 @@ module Pathfinding
     def compute
       raise Exception, "No board defined" if @board.nil?
       init
-      puts "init done"
       iter_over_adjacency
-      puts "iter done"
     end
 
     def search_path from, to
