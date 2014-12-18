@@ -7,8 +7,8 @@ class Array
 end
 
 class Array2D
-  def initialize(width, height)
-    @data = Array.new(width) { Array.new(height) }
+  def initialize(width, height, val)
+    @data = Array.new(width) { Array.new(height){ val } }
   end
   def [](x, y)
     return nil if @data[x].nil?
@@ -77,7 +77,7 @@ module Pathfinding
     def compute
       raise Exception, "No board defined" if @board.nil?
       init
-      iter_over_adjacency
+      #iter_over_adjacency
     end
 
     def search_path from, to
@@ -111,9 +111,9 @@ module Pathfinding
       size = @board.size**2
       size.times do |k|
         size.times do |i|
-          next if @length[i, k].nil?
+          next if @length[i, k] == Float::INFINITY
           i.upto(size-1) do |j|
-            next if @length[k, j].nil?
+            next if @length[k, j] == Float::INFINITY
             new_e = @length[i, k] + @length[k, j]
             if new_e < @length[i, j]
               @length[i, j] = @length[j, i] = new_e
@@ -127,21 +127,15 @@ module Pathfinding
 
     def init
       size = @board.size**2
-      @next = Array2D.new(size, size)
-      @length = Array2D.new(size, size)
+      @next = Array2D.new(size, size, nil)
+      @length = Array2D.new(size, size, Float::INFINITY)
       size.times do |i|
-        size.times do |j|
-          if i == j
-            @next[i, j] = j
-            @length[i, j] = 0 
-          elsif @board.passable_neighbours(get_pos(i)).include?(get_pos(j))
-            @next[i, j] = j
-            @length[i, j] = 1
-          else
-            @next[i, j] = nil
-            @length[i, j] = Float::INFINITY
-          end
+        @board.passable_neighbours(get_pos(i)).map{ |n| get_id(n) }.each do |j|
+          @next[i, j] = j
+          @length[i, j] = 1
         end
+        @next[i, i] = i
+        @length[i, i] = 0
       end
     end
   end
