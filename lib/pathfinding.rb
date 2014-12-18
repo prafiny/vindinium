@@ -6,6 +6,7 @@ class Array
   end
 end
 
+=begin
 class Array2D
   def initialize(width, height, val)
     @data = Array.new(width) { Array.new(height){ val } }
@@ -18,7 +19,7 @@ class Array2D
     @data[x][y] = value
   end
 end
-
+=end
 module Pathfinding
   class AStar
     attr_writer :board
@@ -65,7 +66,7 @@ module Pathfinding
       path
     end
   end
-
+=begin
   class Floyd
     attr_writer :board
     def initialize
@@ -139,4 +140,5 @@ module Pathfinding
       end
     end
   end
+=end
 end

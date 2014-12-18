@@ -1,27 +1,31 @@
 #include "matrix.h"
 #include "stdlib.h"
+#include "string.h"
+#include <stdio.h>
 
-Matrix * Matrix_create(size_t size, int val){
+Matrix * Matrix_create(unsigned int size, int val){
   Matrix * m;
-  if(!(m = malloc(sizeof(Matrix))))
+  if((m = malloc(sizeof(Matrix))) == NULL)
     exit(0);
   Matrix_initialize(m, size, val);
   return m;
 }
 
-void Matrix_initialize(Matrix * m, size_t size, int val){
+void Matrix_initialize(Matrix * m, unsigned int size, int val){
+  unsigned int i, j;
   m->size = size;
-  if(!(m->data = malloc(sizeof(int *)*size)))
+  if((m->data = malloc(sizeof(int *)*size)) == NULL)
     exit(0);
-  int i;
   for(i=0; i<size; i++){
-    if(!(m->data[i] = malloc(sizeof(int)*size)))
+    if((m->data[i] = malloc(sizeof(int)*size)) == NULL)
       exit(0);
-    memset(m->data[i], size, val);
+    for(j=0; j<size; j++){
+      m->data[i][j] = val;
+    }
   }
 }
 
-void Matrix_access(Matrix * m, unsigned int i, unsigned int j){
+int Matrix_access(Matrix * m, unsigned int i, unsigned int j){
   return m->data[i][j];
 }
 
@@ -30,6 +34,7 @@ void Matrix_set(Matrix * m, unsigned int i, unsigned int j, int val){
 }
 
 void Matrix_free(Matrix * m){
+  unsigned int i;
   for(i=0; i<m->size; i++){
     free(m->data[i]);
   }

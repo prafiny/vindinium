@@ -1,5 +1,6 @@
 # pathfinding_spec.rb
 require_relative '../lib/pathfinding'
+require_relative '../ext/floyd'
 
 class Board
   attr_reader :size
