@@ -29,6 +29,16 @@ int Matrix_access(Matrix * m, unsigned int i, unsigned int j){
   return m->data[i][j];
 }
 
+void Matrix_display(Matrix * m){
+  unsigned int i, j;
+  for(i=0; i<m->size; i++){
+    for(j=0; j<m->size; j++){
+      printf("%d ", m->data[i][j]);
+    }
+    printf("\n");
+  } 
+}
+
 void Matrix_set(Matrix * m, unsigned int i, unsigned int j, int val){
   m->data[i][j] = val;
 }

@@ -79,31 +79,29 @@ end
 
 describe Pathfinding::Floyd do
   floyd = Pathfinding::Floyd.new
-  it "should fetch path to neighbours properly" do
-    floyd.board = Board.new 10
-    floyd.compute
-    expect(floyd.search_path([1, 1], [0, 1])).to eq([[1, 1], [0, 1]])
-    expect(floyd.search_path([1, 1], [1, 0])).to eq([[1, 1], [1, 0]])
-    expect(floyd.search_path([1, 1], [1, 2])).to eq([[1, 1], [1, 2]])
-    expect(floyd.search_path([1, 1], [2, 1])).to eq([[1, 1], [2, 1]])
-  end
-
   it "should match id and pos properly" do
     floyd.board = Board.new 20
-    20.times do |i|
-      expect(floyd.send(:get_id, floyd.send(:get_pos, i))).to eq(i)
-    end
-
+    expect(floyd.send(:get_pos, 20)).to eq([1, 0])
+    expect(floyd.send(:get_pos, 3)).to eq([0, 3])
     i = 0
     (0..19).to_a.product((0..19).to_a).each do |pos|
       expect(floyd.send(:get_pos, i)).to eq(pos)
       expect(floyd.send(:get_id, pos)).to eq(i)
       i += 1
     end
+    20.times do |i|
+      expect(floyd.send(:get_id, floyd.send(:get_pos, i))).to eq(i)
+    end
+  end
 
-    expect(floyd.send(:get_pos, 3)).to eq([0, 3])
-    expect(floyd.send(:get_pos, 20)).to eq([1, 0])
-
+  it "should fetch path to neighbours properly" do
+    floyd.board = Board.new 5
+    floyd.compute
+    floyd.display_matrix
+    expect(floyd.search_path([1, 1], [0, 1])).to eq([[1, 1], [0, 1]])
+    expect(floyd.search_path([1, 1], [1, 0])).to eq([[1, 1], [1, 0]])
+    expect(floyd.search_path([1, 1], [1, 2])).to eq([[1, 1], [1, 2]])
+    expect(floyd.search_path([1, 1], [2, 1])).to eq([[1, 1], [2, 1]])
   end
 
   it "should return nil if there's no path" do

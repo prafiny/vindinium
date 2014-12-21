@@ -14,14 +14,12 @@ void Floyd_iter(Matrix * length, Matrix * next){
   for(k=0; k<length->size; k++){
     for(i=0; i<length->size; i++){
       if(Matrix_access(length, i, k) != -1){
-        for(j=i; j<length->size; j++){
+        for(j=0; j<length->size; j++){
           if(Matrix_access(length, k, j) != -1){
             int new = Matrix_access(length, i, k) + Matrix_access(length, k, j);
-            if(new < Matrix_access(length, i, j)){
+            if(Matrix_access(length, i, j) == -1 || new < Matrix_access(length, i, j)){
               Matrix_set(length, i, j, new);
               Matrix_set(next, i, j, k);
-              Matrix_set(length, j, i, new);
-              Matrix_set(next, j, i, k);
             }
           }
         }
@@ -30,12 +28,16 @@ void Floyd_iter(Matrix * length, Matrix * next){
   }
 }
 
-static unsigned int Tile_get_id(size_t size, VALUE pos){
+static unsigned int Tile_get_id(unsigned int size, VALUE pos){
   return NUM2INT(rb_ary_entry(pos, 0))*size + NUM2INT(rb_ary_entry(pos, 1));
 }
 
-static VALUE Tile_get_pos(size_t size, unsigned int id){
+static VALUE Tile_get_pos(unsigned int size, unsigned int id){
   return rb_ary_new3(2, INT2NUM(id / size), INT2NUM(id % size));
+}
+
+static int Floyd_Board_get_size(VALUE self){
+  return NUM2INT(rb_iv_get(rb_iv_get(self, "@board"), "@size"));
 }
 
 static VALUE Floyd_initialize(VALUE self)
@@ -46,32 +48,27 @@ static VALUE Floyd_initialize(VALUE self)
   return self;
 }
 
-static VALUE add_neighbour(VALUE jV, VALUE self, int argc, VALUE argv[]){
-  Matrix * length = C_MATRIX(rb_iv_get(self, "@length"));
-  Matrix * next = C_MATRIX(rb_iv_get(self, "@next"));
-  int i = NUM2INT(argv[0]), j = NUM2INT(jV);
-  Matrix_set(length, i, j, 1);
-  Matrix_set(next, i, j, j);
-  return Qnil;  
-}
-
 static VALUE Floyd_compute(VALUE self)
 {
   VALUE board = rb_iv_get(self, "@board");
   unsigned int size = NUM2INT(rb_iv_get(board, "@size"));
-  unsigned int i;
-  Matrix * length = Matrix_create(size*2, -1);
-  Matrix * next = Matrix_create(size*2, -1);
-  rb_iv_set(self, "@next", RB_MATRIX(next));
-  rb_iv_set(self, "@length", RB_MATRIX(length));
-  for(i=0; i<size; i++){
+  unsigned int i,j;
+  int to;
+  Matrix * length = Matrix_create(size*size, -1);
+  Matrix * next = Matrix_create(size*size, -1);
+  for(i=0; i<size*size; i++){
     VALUE neighbour = rb_funcall(board, rb_intern("passable_neighbours"), 1, Tile_get_pos(size, i));
-    VALUE args[1];
-    args[0] = INT2NUM(i);
-puts(RSTRING_PTR(rb_funcall(neighbour, rb_intern("inspect"), 0)));
-    rb_block_call(neighbour, rb_intern("each"), 1, args, RUBY_METHOD_FUNC(add_neighbour), self);
+    for(j=0; j<RARRAY_LEN(neighbour); j++){
+      to = Tile_get_id(size, rb_ary_entry(neighbour, j));
+      Matrix_set(length, i, to, 1);
+      Matrix_set(next, i, to, to);
+    }
+    Matrix_set(length, i, i, 0);
+    Matrix_set(next, i, i, i);
   }
   Floyd_iter(length, next);
+  rb_iv_set(self, "@next", RB_MATRIX(next));
+  rb_iv_set(self, "@length", RB_MATRIX(length));
   return Qnil;
 }
 
@@ -85,8 +82,7 @@ static VALUE Floyd_search_path(VALUE self, VALUE from, VALUE to)
 {
   VALUE path = rb_ary_new3(1, from);
   Matrix * next = C_MATRIX(rb_iv_get(self, "@next"));
-  VALUE board = rb_iv_get(self, "@board");
-  unsigned int size = NUM2INT(rb_iv_get(board, "@size"));
+  unsigned int size = Floyd_Board_get_size(self);
   int u = Tile_get_id(size, from), v = Tile_get_id(size, to);
   if(Matrix_access(next, u, v) == -1)
     return Qnil;
@@ -101,23 +97,32 @@ static VALUE Floyd_search_path(VALUE self, VALUE from, VALUE to)
 static VALUE Floyd_search_length(VALUE self, VALUE from, VALUE to)
 {
   Matrix * length = C_MATRIX(rb_iv_get(self, "@length"));
-  return INT2NUM(Matrix_access(length, Tile_get_id(length->size/2, from), Tile_get_id(length->size/2, to)));
+  unsigned int size = Floyd_Board_get_size(self);
+  return INT2NUM(Matrix_access(length, Tile_get_id(size, from), Tile_get_id(size, to)));
 }
 
 static VALUE Floyd_search_next(VALUE self, VALUE from, VALUE to)
 {
   Matrix * next = C_MATRIX(rb_iv_get(self, "@next"));
-  return Tile_get_pos(next->size/2, Matrix_access(next, Tile_get_id(next->size/2, from), Tile_get_id(next->size/2, to)));
+  unsigned int size = Floyd_Board_get_size(self);
+  return Tile_get_pos(size, Matrix_access(next, Tile_get_id(size, from), Tile_get_id(size, to)));
 }
 
-static VALUE Floyd_get_pos(VALUE self, VALUE pos){
-  Matrix * length = C_MATRIX(rb_iv_get(self, "@length"));
-  return INT2NUM(Tile_get_id(length->size/2, pos));
+static VALUE Floyd_get_pos(VALUE self, VALUE id){
+  return Tile_get_pos(Floyd_Board_get_size(self), NUM2INT(id));
 }
 
-static VALUE Floyd_get_id(VALUE self, VALUE id){
+static VALUE Floyd_get_id(VALUE self, VALUE pos){
+  return INT2NUM(Tile_get_id(Floyd_Board_get_size(self), pos));
+}
+
+static VALUE Floyd_display_matrix(VALUE self){
   Matrix * length = C_MATRIX(rb_iv_get(self, "@length"));
-  return Tile_get_pos(length->size/2, NUM2INT(id));
+  Matrix * next = C_MATRIX(rb_iv_get(self, "@next"));
+  Matrix_display(next);
+  puts("");
+  Matrix_display(length);
+  return Qnil;
 }
 
 void Init_floyd()
@@ -134,4 +139,5 @@ void Init_floyd()
   rb_define_method(Floyd, "board=", Floyd_set_board, 1);
   rb_define_method(Floyd, "get_pos", Floyd_get_pos, 1);
   rb_define_method(Floyd, "get_id", Floyd_get_id, 1);
+  rb_define_method(Floyd, "display_matrix", Floyd_display_matrix, 0);
 }
