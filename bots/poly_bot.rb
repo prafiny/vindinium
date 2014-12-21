@@ -27,7 +27,6 @@ class PolyBot < BaseBot
 
         transition_to(:warrior) { nearness_enemy < t(7) && violence > t(16) }        
         behaviour do
-          puts "conqueror"
           select_goal nearest_mine if current_state(:obj).activated? || goal_needed && !nearest_mine.nil?
         end
       end
@@ -38,7 +37,6 @@ class PolyBot < BaseBot
         transition_to(:conqueror) { thirst < t(14) && greed > t(15) }
 
         behaviour do
-          puts "coward"
           select_goal nearest(@game.taverns) if current_state(:obj).activated? || goal_needed
         end
       end
@@ -49,8 +47,7 @@ class PolyBot < BaseBot
         transition_to(:coward) { violence < t(3) }
 
         behaviour do
-          puts "coward"
-          @enemy_to = nearest_enemy
+          @enemy_to = nearest_enemy if current_state(:obj).activated? || goal_needed
           @goal = @aim = nearest_enemy.pos
         end
       end
