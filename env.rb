@@ -16,8 +16,8 @@ AIM = {'North' => [-1, 0],
        'South' => [1, 0],
        'West' => [0, -1]}
 
-%w{models lib bots}.each do |dir|
-  Dir[File.join(ROOT, dir, '**/*')].each do |f|
+%w{models lib ext bots}.each do |dir|
+  Dir[File.join(ROOT, dir, '**/*.{rb,so}')].each do |f|
     require f unless File.directory?(f)
   end
 end

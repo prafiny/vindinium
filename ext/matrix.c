@@ -33,7 +33,7 @@ void Matrix_display(Matrix * m){
   unsigned int i, j;
   for(i=0; i<m->size; i++){
     for(j=0; j<m->size; j++){
-      printf("%d ", m->data[i][j]);
+      printf("%d, ", m->data[i][j]);
     }
     printf("\n");
   } 

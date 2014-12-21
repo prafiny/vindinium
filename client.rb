@@ -1,5 +1,7 @@
 require './env'
 
+mutate = true
+
 if ARGV.length < 3
   puts "Usage: bundle exec ruby #{__FILE__} <key> <[training|arena]> <number-of-games|number-of-turns> [server-url]"
   exit -1
@@ -16,9 +18,9 @@ else
     CONF[:games] = ARGV.shift
     CONF[:turns] = 300
   end
+  CONF[:bot] = PolyBot.new 'thresholds.yaml', (CONF[:mode] == 'arena' && mutate ? :mutate : :dont_mutate)
 
   CONF[:server] = ARGV.shift if ARGV.length > 0
-  CONF[:bot] = PolyBot.new 'thresholds.yaml'
 
   game = Vindinium.new(CONF)
   game.start

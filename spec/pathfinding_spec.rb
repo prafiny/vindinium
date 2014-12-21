@@ -21,6 +21,14 @@ class Board
     @passable[pos].nil?
   end
 
+  def enum_paths
+    (size*2).times do |i|
+      i.upto(size*2-1) do |j|
+        yield [i, j]
+      end
+    end
+  end
+
   def neighbours pos
     x, y = pos
     Enumerator.new do |e|
@@ -81,15 +89,7 @@ describe Pathfinding::Floyd do
   floyd = Pathfinding::Floyd.new
   it "should match id and pos properly" do
     floyd.board = Board.new 20
-    expect(floyd.send(:get_pos, 20)).to eq([1, 0])
-    expect(floyd.send(:get_pos, 3)).to eq([0, 3])
-    i = 0
-    (0..19).to_a.product((0..19).to_a).each do |pos|
-      expect(floyd.send(:get_pos, i)).to eq(pos)
-      expect(floyd.send(:get_id, pos)).to eq(i)
-      i += 1
-    end
-    20.times do |i|
+    100.times do |i|
       expect(floyd.send(:get_id, floyd.send(:get_pos, i))).to eq(i)
     end
   end
@@ -97,11 +97,29 @@ describe Pathfinding::Floyd do
   it "should fetch path to neighbours properly" do
     floyd.board = Board.new 5
     floyd.compute
-    floyd.display_matrix
     expect(floyd.search_path([1, 1], [0, 1])).to eq([[1, 1], [0, 1]])
     expect(floyd.search_path([1, 1], [1, 0])).to eq([[1, 1], [1, 0]])
     expect(floyd.search_path([1, 1], [1, 2])).to eq([[1, 1], [1, 2]])
     expect(floyd.search_path([1, 1], [2, 1])).to eq([[1, 1], [2, 1]])
+  end
+
+  it "should fetch path properly" do
+    floyd.board = Board.new 5
+    floyd.compute
+    w = [0, 0] 
+    destination = [0, 4]
+    i = 0
+    until w == destination
+      expect(w).not_to eq(nil) 
+      w = floyd.search_next(w, destination)
+      i += 1
+      break if i > 20
+    end
+
+    expect(w).to eq(destination)
+
+    #p = [[1, 1], [1, 2], [1, 3], [1,4], [1,5]]
+    #expect(floyd.search_path([1, 1], [1, 5])).to eq(p)    
   end
 
   it "should return nil if there's no path" do

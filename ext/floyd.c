@@ -3,6 +3,8 @@
 #include <limits.h>
 #include "matrix.h"
 #define RB_MATRIX(m) Data_Wrap_Struct( rb_cObject, NULL, Matrix_free, m )
+#define GET_INFINITY rb_iv_get(self, "@inf")
+
 inline Matrix * C_MATRIX(VALUE rm){
   Matrix * cm;
   Data_Get_Struct( rm, Matrix, cm );
@@ -19,7 +21,7 @@ void Floyd_iter(Matrix * length, Matrix * next){
             int new = Matrix_access(length, i, k) + Matrix_access(length, k, j);
             if(Matrix_access(length, i, j) == -1 || new < Matrix_access(length, i, j)){
               Matrix_set(length, i, j, new);
-              Matrix_set(next, i, j, k);
+              Matrix_set(next, i, j, Matrix_access(next, i, k));
             }
           }
         }
@@ -45,6 +47,7 @@ static VALUE Floyd_initialize(VALUE self)
   rb_iv_set(self, "@next", Qnil);
   rb_iv_set(self, "@length", Qnil);
   rb_iv_set(self, "@board", Qnil);
+  rb_iv_set(self, "@inf", rb_const_get(rb_const_get(rb_cObject, rb_intern("Float")), rb_intern("INFINITY")));
   return self;
 }
 
@@ -98,14 +101,16 @@ static VALUE Floyd_search_length(VALUE self, VALUE from, VALUE to)
 {
   Matrix * length = C_MATRIX(rb_iv_get(self, "@length"));
   unsigned int size = Floyd_Board_get_size(self);
-  return INT2NUM(Matrix_access(length, Tile_get_id(size, from), Tile_get_id(size, to)));
+  int len = Matrix_access(length, Tile_get_id(size, from), Tile_get_id(size, to));
+  return len == -1 ? GET_INFINITY : INT2NUM(len);
 }
 
 static VALUE Floyd_search_next(VALUE self, VALUE from, VALUE to)
 {
   Matrix * next = C_MATRIX(rb_iv_get(self, "@next"));
   unsigned int size = Floyd_Board_get_size(self);
-  return Tile_get_pos(size, Matrix_access(next, Tile_get_id(size, from), Tile_get_id(size, to)));
+  int id = Matrix_access(next, Tile_get_id(size, from), Tile_get_id(size, to));
+  return id == -1 ? Qnil : Tile_get_pos(size, id);
 }
 
 static VALUE Floyd_get_pos(VALUE self, VALUE id){
