@@ -1,8 +1,9 @@
 class PolyBot < BaseBot
   include Automaton, Threshold, Volatile
   extend Volatile
-  def initialize threshold_file, mutate
-    load_thresholds threshold_file, mutate
+  def initialize threshold_file, *mutate
+    load_thresholds threshold_file
+    @mutate = mutate.include? :mutate
     @pathf = Pathfinding::Floyd.new
     @objective = lambda do
       @me.gold.to_f / (@game.heroes.map{ |h| h.gold }.reduce(:+).to_f + 1.0)
@@ -57,14 +58,15 @@ class PolyBot < BaseBot
   def move state
     fade
     if @game.nil?
-      @game = Game.new state
-      @distance_max = Math.sqrt(2) * @game.board.size
-      @pathf.board = @game.board
       Thread.new do
+        @game = Game.new state
+        set_thresholds @game.board.size
+        @distance_max = Math.sqrt(2) * @game.board.size
+        @pathf.board = @game.board
         @pathf.compute
+        @me = @game.me
         @pathf_ok = true
       end
-      @me = @game.me
     else
       @game.update state
     end

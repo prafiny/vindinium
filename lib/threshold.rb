@@ -6,7 +6,6 @@ module Threshold
     def initialize file, *opts
       @file = file
       @config = YAML.load(File.read(file))
-      @mutate = opts.include? :mutate
       if @config['best'].nil?
         @config['best'] = {'score' => {}, 'known' => {}}
       end
