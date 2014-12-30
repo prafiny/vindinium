@@ -34,3 +34,5 @@ Gemfile.lock
 # vim
 *.swp
 *.swo
+
+thresholds.yaml
