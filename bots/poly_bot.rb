@@ -10,11 +10,11 @@ class PolyBot < BaseBot
     end
     @goal = nil
     @aim = nil
-    @pathf_ok = false
+    @ready = false
 
     def_automaton do
       state :calculating do
-        transition_to(:conqueror) { @pathf_ok }
+        transition_to(:conqueror) { @ready }
         
         behaviour do
           DIRECTIONS.sample
@@ -65,7 +65,7 @@ class PolyBot < BaseBot
         @pathf.board = @game.board
         @pathf.compute
         @me = @game.me
-        @pathf_ok = true
+        @ready = true
       end
     else
       @game.update state
