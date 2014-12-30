@@ -1,0 +1,10 @@
+digraph g{
+  rankdir=LR
+  node [shape=box, style="rounded, filled", fillcolor="#327FBE", color="#2C70A7", fontcolor="white", fontname="sans-serif"];
+  edge [color="#888888"]
+  analyse -> comportement -> action
+  analyse [label="Analyse de\nla situation"]
+  comportement [label="Choix du\ncomportement"]
+  action [label="Action"]
+}
+

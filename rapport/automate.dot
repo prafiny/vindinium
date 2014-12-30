@@ -1,0 +1,19 @@
+digraph g{
+  edge [fontname="sans-serif", fontsize="8", margin="0.3,0.1"]
+  node [fontname="sans-serif", fontsize="9"]
+  c -> g [label=<D<sub>E</sub>&gt;α<sub>7</sub><br/>et<br/>V&gt;α<sub>16</sub>>]
+  c -> p [label=<S&gt;α<sub>5</sub><br/>et<br/>D<sub>T</sub>&lt;α<sub>6</sub>>]
+  c -> p [label=<S&gt;α<sub>4</sub>>]
+  
+  p -> g [label=<S&lt;α<sub>8</sub>&nbsp;&nbsp;<br/>et&nbsp;&nbsp;<br/>D<sub>E</sub>&lt;α<sub>10</sub>&nbsp;&nbsp;<br/>et&nbsp;&nbsp;<br/>V&gt;α<sub>11</sub>&nbsp;&nbsp;>]
+  p -> c [label=<S&lt;α<sub>12</sub><br/>et<br/>D<sub>M</sub>&lt;α<sub>13</sub>>]
+  p -> c [label=<S&lt;α<sub>14</sub><br/>et<br/>A&gt;α<sub>15</sub>>]
+
+  g -> p [label=<S&gt;α<sub>1</sub><br/>et<br/>D<sub>T</sub>&lt;α<sub>9</sub>>]
+  g -> p [label=<S&gt;α<sub>2</sub>>]
+  g -> p [label=<V&lt;α<sub>3</sub>>]
+
+  c [label="Conquérant"]
+  p [label="Peureux"]
+  g [label="Guerrier"]
+}
