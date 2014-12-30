@@ -36,3 +36,7 @@ Gemfile.lock
 *.swo
 
 thresholds.yaml
+
+ext/*.o
+ext/Makefile
+ext/*.so
